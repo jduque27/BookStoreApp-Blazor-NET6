@@ -16,14 +16,18 @@ namespace BookStoreApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class AuthorsController : ControllerBase
     {
         private readonly BookStoreDbContext _context;
         private readonly IMapper mapper;
         private readonly ILogger<AuthorsController> logger;
 
-        public AuthorsController(BookStoreDbContext context, IMapper mapper, ILogger<AuthorsController> logger)
+        public AuthorsController(
+            BookStoreDbContext context,
+            IMapper mapper,
+            ILogger<AuthorsController> logger
+        )
         {
             _context = context;
             this.mapper = mapper;
@@ -34,34 +38,30 @@ namespace BookStoreApp.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AuthorReadOnlyDto>>> GetAuthors()
         {
-
             try
             {
-            var authors = await _context.Authors.ToListAsync();
-            var authorDtos = mapper.Map < IEnumerable < AuthorReadOnlyDto >> (authors);
-            return Ok(authorDtos);
+                var authors = await _context.Authors.ToListAsync();
+                var authorDtos = mapper.Map<IEnumerable<AuthorReadOnlyDto>>(authors);
+                return Ok(authorDtos);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, $"Error performin GET in {nameof(GetAuthors)}");
                 return StatusCode(500, Messages.Error500Message);
             }
-
         }
 
         // GET: api/Authors/5
         [HttpGet("{id}")]
         public async Task<ActionResult<AuthorReadOnlyDto>> GetAuthor(int id)
-
         {
-
             try
             {
                 var author = await _context.Authors.FindAsync(id);
 
                 if (author == null)
                 {
-                    logger.LogWarning( $"Author not found: {nameof(GetAuthor)} - ID: {id}");
+                    logger.LogWarning($"Author not found: {nameof(GetAuthor)} - ID: {id}");
                     return NotFound();
                 }
 
@@ -73,7 +73,6 @@ namespace BookStoreApp.API.Controllers
                 logger.LogError(ex, $"Error performin GET in {nameof(GetAuthors)}");
                 return StatusCode(500, Messages.Error500Message);
             }
-          
         }
 
         // PUT: api/Authors/5
@@ -82,7 +81,6 @@ namespace BookStoreApp.API.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> PutAuthor(int id, AuthorUpdateDto authorUpdateDto)
         {
-
             try
             {
                 if (id != authorUpdateDto.Id)
@@ -94,7 +92,9 @@ namespace BookStoreApp.API.Controllers
                 var author = await _context.Authors.FindAsync(id);
                 if (author == null)
                 {
-                    logger.LogWarning($"{nameof(Author)} not found: {nameof(PutAuthor)} - ID: {id}");
+                    logger.LogWarning(
+                        $"{nameof(Author)} not found: {nameof(PutAuthor)} - ID: {id}"
+                    );
                     return NotFound();
                 }
 
@@ -125,8 +125,6 @@ namespace BookStoreApp.API.Controllers
                 logger.LogError(ex, $"Error performin PUT in {nameof(GetAuthors)}");
                 return StatusCode(500, Messages.Error500Message);
             }
-
-   
         }
 
         // POST: api/Authors
@@ -135,7 +133,6 @@ namespace BookStoreApp.API.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<ActionResult<AuthorCreateDto>> PostAuthor(AuthorCreateDto authorCreateDto)
         {
-
             try
             {
                 var author = mapper.Map<Author>(authorCreateDto);
@@ -146,10 +143,13 @@ namespace BookStoreApp.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Error performin POST in {nameof(PostAuthor)}", authorCreateDto);
+                logger.LogError(
+                    ex,
+                    $"Error performin POST in {nameof(PostAuthor)}",
+                    authorCreateDto
+                );
                 return StatusCode(500, Messages.Error500Message);
             }
-         
         }
 
         // DELETE: api/Authors/5
@@ -157,13 +157,14 @@ namespace BookStoreApp.API.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> DeleteAuthor(int id)
         {
-
             try
             {
                 var author = await _context.Authors.FindAsync(id);
                 if (author == null)
                 {
-                    logger.LogWarning($"{nameof(Author)} not found: {nameof(DeleteAuthor)} - ID: {id}");
+                    logger.LogWarning(
+                        $"{nameof(Author)} not found: {nameof(DeleteAuthor)} - ID: {id}"
+                    );
                     return NotFound();
                 }
 
@@ -177,8 +178,6 @@ namespace BookStoreApp.API.Controllers
                 logger.LogError(ex, $"Error performin DELETE in {nameof(DeleteAuthor)}");
                 return StatusCode(500, Messages.Error500Message);
             }
-
-           
         }
 
         private async Task<bool> AuthorExists(int id)
